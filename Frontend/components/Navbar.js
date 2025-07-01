@@ -29,7 +29,10 @@ export function Navbar() {
   return `
     <nav class="navbar-modern">
       <div class="navbar-brand">
-        <a href="#home">🎬 CineApp</a>
+        <a href="#home">
+          <img src="assests/img/icons/CineApp_logo.png" alt="CineApp Logo" style="height:32px;vertical-align:middle;margin-right:8px;">
+          CineApp
+        </a>
       </div>
       <ul class="navbar-menu">
         ${menu}
