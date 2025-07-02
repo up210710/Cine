@@ -61,10 +61,10 @@ export async function AdminEstadisticasRender(targetId = 'panelAdmin') {
 
   const estadisticasGenerales = `
     <div class="estadisticas-container">
-      <div class="estadistica-item"><h3>Total Ventas</h3><p>${resumen.totalVentas}</p></div>
-      <div class="estadistica-item"><h3>Clientes Atendidos</h3><p>${resumen.clientesAtendidos}</p></div>
-      <div class="estadistica-item"><h3>Ventas con Membresía</h3><p>${resumen.ventasMembresia}</p></div>
-      <div class="estadistica-item"><h3>Ventas sin Membresía</h3><p>${resumen.ventasSinMembresia}</p></div>
+      <div class="estadistica-item"><h3>Total Ventas</h3><p>${resumen.totalVentas ?? 'Sin datos'}</p></div>
+      <div class="estadistica-item"><h3>Clientes Atendidos</h3><p>${resumen.clientesAtendidos ?? 'Sin datos'}</p></div>
+      <div class="estadistica-item"><h3>Ventas con Membresía</h3><p>${resumen.totalVentasConMembresia ?? 'Sin datos'}</p></div>
+      <div class="estadistica-item"><h3>Ventas sin Membresía</h3><p>${resumen.totalVentasSinMembresia ?? 'Sin datos'}</p></div>
     </div>`;
 
   const estadisticasPeliculas = `
@@ -72,15 +72,17 @@ export async function AdminEstadisticasRender(targetId = 'panelAdmin') {
       <div class="estadistica-item">
         <h3>Boletos por Película</h3>
         <ul>
-          ${(resumen.boletosPorPelicula && Object.entries(resumen.boletosPorPelicula)
-            .map(([titulo, cantidad]) => `<li>${titulo}: ${cantidad}</li>`).join('')) || '<li>Sin datos</li>'}
+          ${(resumen.boletosPorPelicula && resumen.boletosPorPelicula.length > 0
+            ? resumen.boletosPorPelicula.map(p => `<li>${p.pelicula}: ${p.cantidad}</li>`).join('')
+            : '<li>Sin datos</li>')}
         </ul>
       </div>
       <div class="estadistica-item">
         <h3>Boletos por Sala</h3>
         <ul>
-          ${(resumen.boletosPorSala && Object.entries(resumen.boletosPorSala)
-            .map(([sala, cantidad]) => `<li>Sala ${sala}: ${cantidad}</li>`).join('')) || '<li>Sin datos</li>'}
+          ${(resumen.boletosPorSala && Object.keys(resumen.boletosPorSala).length > 0
+            ? Object.entries(resumen.boletosPorSala).map(([sala, cantidad]) => `<li>Sala ${sala}: ${cantidad}</li>`).join('')
+            : '<li>Sin datos</li>')}
         </ul>
       </div>
       <div class="estadistica-item"><h3>Más Vendida</h3><p>${resumen.masVendida || 'N/A'}</p></div>
