@@ -66,7 +66,7 @@ export function Navbar() {
   return `
     <nav class="navbar-modern">
       <div class="navbar-brand">
-        <img src="assests/icons/cinepolis.ico" alt="CineApp Logo" style="height:32px;vertical-align:middle;margin-right:8px;">
+        <img src="assests/img/icons/CineApp_logo.png" alt="CineApp Logo" style="height:32px;vertical-align:middle;margin-right:8px;">
         <a href="#home" style="color:#ffe066;font-size:2rem;font-weight:bold;vertical-align:middle;text-decoration:none;">CineApp</a>
       </div>
       <ul class="navbar-menu">
