@@ -35,6 +35,9 @@ export async function Salas() {
     }
   };
 
+  const precioBase = 75;
+  const precioFinal = usuario.membresia ? precioBase * 0.8 : precioBase;
+
   window.comprarBoletos = async () => {
     if (!asientosSeleccionados.length) {
       alert('Selecciona al menos un asiento');
@@ -51,7 +54,7 @@ export async function Salas() {
         fila: asiento.fila,
         numero: asiento.numero,
         membresia: usuario.membresia,
-        precio: 75
+        precio: precioFinal
       });
       boletos.push({
         ...venta,
@@ -60,7 +63,7 @@ export async function Salas() {
         horario,
         fila: asiento.fila,
         numero: asiento.numero,
-        precio: 75
+        precio: precioFinal
       });
     }
     sessionStorage.setItem('ultimoBoleto', JSON.stringify({
@@ -71,7 +74,7 @@ export async function Salas() {
       },
       horario,
       sala: 1,
-      precioTotal: boletos.length * 75
+      precioTotal: boletos.length * precioFinal
     }));
     alert('¡Compra realizada!');
     window.location.hash = '#ticket';

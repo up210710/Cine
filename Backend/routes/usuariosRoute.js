@@ -7,5 +7,6 @@ router.post('/', usuariosController.registrarUsuario);
 router.get('/:id', usuariosController.getUsuarioPorId);
 router.put('/:id', usuariosController.actualizarUsuario);
 router.delete('/:id', usuariosController.eliminarUsuario);
+router.post('/:id/membresia', usuariosController.activarMembresia);
 
 module.exports = router;

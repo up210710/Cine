@@ -33,3 +33,18 @@ exports.eliminarUsuario = async (req, res) => {
   if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
   res.status(204).send();
 };
+
+// Activar membresía
+exports.activarMembresia = async (req, res) => {
+  try {
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      { membresia: true },
+      { new: true }
+    );
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json(usuario);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al activar membresía' });
+  }
+};
