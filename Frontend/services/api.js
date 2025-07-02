@@ -45,7 +45,7 @@ export async function getEmpleados() {
 
 // Cambia aquí para usar el resumen correcto
 export async function getEstadisticas() {
-  const res = await fetch(`${API_URL}/ventas/resumen`);
+  const res = await fetch(`${API_URL}/estadisticas`);
   return res.json();
 }
 

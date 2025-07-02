@@ -1,4 +1,4 @@
-import { AdminEstadisticas } from '../components/AdminEstadisticas.js';
+import { AdminEstadisticas, AdminEstadisticasRender } from '../components/AdminEstadisticas.js';
 
 export async function AdminPage() {
   // Solo permite acceso a admin
@@ -7,5 +7,7 @@ export async function AdminPage() {
     window.location.hash = '#home';
     return `<h2>No autorizado</h2>`;
   }
-  return await AdminEstadisticas();
+  // Renderiza el contenedor y luego los datos
+  setTimeout(() => AdminEstadisticasRender('panelAdmin'), 0);
+  return `<div id="panelAdmin"></div>`;
 }

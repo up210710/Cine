@@ -3,13 +3,10 @@ import { PeliculaCard } from '../components/PeliculaCard.js';
 import { CarruselEstrenos } from '../components/CarruselEstrenos.js';
 
 export async function Home() {
-  // Carga las películas desde la API
   const peliculas = await getPeliculas();
-  // Estrenos: las 3 primeras, Cartelera: el resto
   const estrenos = peliculas.slice(0, 3);
   const cartelera = peliculas.slice(3);
 
-  // Mensaje de bienvenida
   let html = `
     <section style="margin: 40px auto 0 auto; max-width: 900px; text-align: center;">
       <h1 style="font-size:2.5rem; color:#ffe066; font-weight:bold; letter-spacing:2px; margin-bottom:10px;">
@@ -35,7 +32,6 @@ export async function Home() {
     </section>
   `;
 
-  // Define la función global para comprar
   window.comprarEstreno = peliculaId => {
     sessionStorage.setItem('peliculaSeleccionada', peliculaId);
     window.location.hash = '#salas';

@@ -6,6 +6,9 @@ const VentaSchema = new mongoose.Schema({
     horario: { type: String, required: true },
     fila: { type: String, required: true },
     numero: { type: Number, required: true },
+    nombreUsuario: { type: String },
+    apellidoUsuario: { type: String },
+    emailUsuario: { type: String },
     membresia: { type: Boolean, default: false },
     precio: { type: Number, required: true },
     fechaVenta: { type: Date, default: Date.now }

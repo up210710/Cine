@@ -20,6 +20,7 @@ app.use('/api/peliculas', require('./routes/peliculasRoute'));
 app.use('/api/ventas', require('./routes/ventasRoute'));
 app.use('/api/usuarios', require('./routes/usuariosRoute'));
 app.use('/api/empleados', require('./routes/empleadosRoute'));
+app.use('/api/estadisticas', require('./routes/estadisticasRoute'));
 
 app.use('/img', express.static(__dirname + '/../Frontend/img'));
 

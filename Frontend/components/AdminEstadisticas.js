@@ -1,15 +1,14 @@
 import { getEmpleados, getEstadisticas } from '../services/api.js';
 
-export async function AdminEstadisticas() {
+export async function AdminEstadisticasRender(targetId = 'panelAdmin') {
   const resumen = await getEstadisticas();
   const empleados = await getEmpleados();
 
-  // Validación inicial de los datos
   if (!resumen || typeof resumen !== 'object') {
-    return `<h2 style="color:#ff3c3c;">Error al cargar estadísticas del sistema</h2>`;
+    document.getElementById(targetId).innerHTML = `<h2 style="color:#ff3c3c;">Error al cargar estadísticas del sistema</h2>`;
+    return;
   }
 
-  // Clasificar usuarios según membresía (cualquier valor distinto de 'Sí' es 'Sin Membresía')
   const usuariosConMembresia = [];
   const usuariosSinMembresia = [];
 
@@ -24,7 +23,6 @@ export async function AdminEstadisticas() {
     }
   }
 
-  // Tabla de ventas recientes
   const ventasTabla = Array.isArray(resumen.ventasRecientes) && resumen.ventasRecientes.length
     ? `
       <h3>Ventas Recientes</h3>
@@ -61,44 +59,42 @@ export async function AdminEstadisticas() {
       </div>`
     : `<p style="color:#ff9800;">No hay ventas registradas aún.</p>`;
 
-  // Panel de estadísticas generales
   const estadisticasGenerales = `
     <div class="estadisticas-container">
-      <div class="estadistica-item"><h3>Total Ventas</h3><p>${resumen.totalVentas}</p></div>
-      <div class="estadistica-item"><h3>Clientes Atendidos</h3><p>${resumen.clientesAtendidos}</p></div>
-      <div class="estadistica-item"><h3>Ventas con Membresía</h3><p>${resumen.ventasMembresia}</p></div>
-      <div class="estadistica-item"><h3>Ventas sin Membresía</h3><p>${resumen.ventasSinMembresia}</p></div>
+      <div class="estadistica-item"><h3>Total Ventas</h3><p>${resumen.totalVentas ?? 'Sin datos'}</p></div>
+      <div class="estadistica-item"><h3>Clientes Atendidos</h3><p>${resumen.clientesAtendidos ?? 'Sin datos'}</p></div>
+      <div class="estadistica-item"><h3>Ventas con Membresía</h3><p>${resumen.totalVentasConMembresia ?? 'Sin datos'}</p></div>
+      <div class="estadistica-item"><h3>Ventas sin Membresía</h3><p>${resumen.totalVentasSinMembresia ?? 'Sin datos'}</p></div>
     </div>`;
 
-  // Estadísticas por película y sala
   const estadisticasPeliculas = `
     <div class="estadisticas-container">
       <div class="estadistica-item">
         <h3>Boletos por Película</h3>
         <ul>
-          ${(resumen.boletosPorPelicula && Object.entries(resumen.boletosPorPelicula)
-            .map(([titulo, cantidad]) => `<li>${titulo}: ${cantidad}</li>`).join('')) || '<li>Sin datos</li>'}
+          ${(resumen.boletosPorPelicula && resumen.boletosPorPelicula.length > 0
+            ? resumen.boletosPorPelicula.map(p => `<li>${p.pelicula}: ${p.cantidad}</li>`).join('')
+            : '<li>Sin datos</li>')}
         </ul>
       </div>
       <div class="estadistica-item">
         <h3>Boletos por Sala</h3>
         <ul>
-          ${(resumen.boletosPorSala && Object.entries(resumen.boletosPorSala)
-            .map(([sala, cantidad]) => `<li>Sala ${sala}: ${cantidad}</li>`).join('')) || '<li>Sin datos</li>'}
+          ${(resumen.boletosPorSala && Object.keys(resumen.boletosPorSala).length > 0
+            ? Object.entries(resumen.boletosPorSala).map(([sala, cantidad]) => `<li>Sala ${sala}: ${cantidad}</li>`).join('')
+            : '<li>Sin datos</li>')}
         </ul>
       </div>
       <div class="estadistica-item"><h3>Más Vendida</h3><p>${resumen.masVendida || 'N/A'}</p></div>
       <div class="estadistica-item"><h3>Menos Vendida</h3><p>${resumen.menosVendida || 'N/A'}</p></div>
     </div>`;
 
-  // Lista de empleados
   const listaEmpleados = `
     <h3>Empleados Registrados</h3>
     <ul id="empleadosLista">
       ${empleados.map(e => `<li>${e.nombre} (${e.usuario || e.email || '—'})</li>`).join('')}
     </ul>`;
 
-  // Tablas de usuarios con y sin membresía
   const tablaUsuarios = (usuarios, tipo) => `
     <h3>Compras por Usuario (${tipo})</h3>
     <table>
@@ -121,8 +117,8 @@ export async function AdminEstadisticas() {
       </tbody>
     </table>`;
 
-  // Renderizado final
-  return `
+  // Renderizado final en el DOM
+  document.getElementById(targetId).innerHTML = `
     <section id="panelAdmin">
       <h2>Panel de Administración</h2>
       ${estadisticasGenerales}
@@ -132,8 +128,8 @@ export async function AdminEstadisticas() {
       ${tablaUsuarios(usuariosSinMembresia, 'Sin Membresía')}
       ${ventasTabla}
     </section>`;
-}
-document.addEventListener('DOMContentLoaded', () => {
+
+  // Inicializar eventos después del render
   const empleadosLista = document.getElementById('empleadosLista');
   if (empleadosLista) {
     empleadosLista.addEventListener('click', (e) => {
@@ -142,4 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+}
+
+// Compatibilidad: función original para SSR o string
+export async function AdminEstadisticas() {
+  return `<div id="panelAdmin"></div>`;
+}

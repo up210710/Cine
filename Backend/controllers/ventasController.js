@@ -13,7 +13,20 @@ exports.getVentas = async (req, res) => {
 // Registrar una nueva venta
 exports.registrarVenta = async (req, res) => {
   try {
-    const nuevaVenta = new Venta(req.body);
+    // Buscar el usuario para obtener sus datos
+    const usuario = await Usuario.findById(req.body.usuario);
+    if (!usuario) {
+      return res.status(400).json({ error: 'Usuario no encontrado' });
+    }
+    // Copiar datos del usuario a la venta
+    const ventaData = {
+      ...req.body,
+      membresia: usuario.membresia,
+      nombreUsuario: usuario.nombre,
+      apellidoUsuario: usuario.apellido,
+      emailUsuario: usuario.email
+    };
+    const nuevaVenta = new Venta(ventaData);
     await nuevaVenta.save();
     res.status(201).json(nuevaVenta);
   } catch (error) {
@@ -54,8 +67,9 @@ exports.eliminarVenta = async (req, res) => {
 exports.getResumenVentas = async (req, res) => {
   try {
     const ventas = await Venta.find().populate('usuario pelicula').sort({ createdAt: -1 });
+    // Incluir ventas que tengan película y datos de usuario referenciado o embebido
     const ventasValidas = ventas.filter(
-      v => v.usuario && v.usuario._id && v.pelicula && v.pelicula.titulo
+      v => ( (v.usuario && v.usuario._id) || v.emailUsuario ) && (v.pelicula && v.pelicula.titulo)
     );
 
     if (!ventasValidas.length) {
@@ -74,9 +88,19 @@ exports.getResumenVentas = async (req, res) => {
     }
 
     const totalVentas = ventasValidas.length;
-    const clientesUnicos = new Set(ventasValidas.map(v => v.usuario._id.toString())).size;
-    const ventasMembresia = ventasValidas.filter(v => v.usuario && v.usuario.membresia).length;
-    const ventasSinMembresia = ventasValidas.filter(v => v.usuario && !v.usuario.membresia).length;
+    // Ajustar clientes únicos para usar emailUsuario si no hay usuario referenciado
+    const clientesUnicosSet = new Set();
+    ventasValidas.forEach(v => {
+      if (v.usuario && v.usuario._id) {
+        clientesUnicosSet.add(v.usuario._id.toString());
+      } else if (v.emailUsuario) {
+        clientesUnicosSet.add(v.emailUsuario);
+      }
+    });
+    const clientesUnicos = clientesUnicosSet.size;
+    // Ajustar ventas con/sin membresía para usar datos embebidos
+    const ventasMembresia = ventasValidas.filter(v => (v.usuario ? v.usuario.membresia : v.membresia)).length;
+    const ventasSinMembresia = ventasValidas.filter(v => (v.usuario ? !v.usuario.membresia : !v.membresia)).length;
 
     // Boletos por película
     const boletosPorPelicula = {};
@@ -107,13 +131,16 @@ exports.getResumenVentas = async (req, res) => {
     // Ventas por usuario (para tabla detallada)
     const ventasPorUsuario = {};
     ventasValidas.forEach(v => {
-      if (!v.usuario) return;
-      const uid = v.usuario._id.toString();
+      // Usar datos embebidos si no hay usuario referenciado
+      const uid = v.usuario?._id?.toString() || v.emailUsuario || v._id.toString();
+      const nombre = v.usuario ? `${v.usuario.nombre} ${v.usuario.apellido}` : `${v.nombreUsuario || ''} ${v.apellidoUsuario || ''}`.trim();
+      const email = v.usuario ? v.usuario.email : v.emailUsuario || 'N/A';
+      const membresia = v.usuario ? (v.usuario.membresia ? 'Sí' : 'No') : (v.membresia ? 'Sí' : 'No');
       if (!ventasPorUsuario[uid]) {
         ventasPorUsuario[uid] = {
-          nombre: `${v.usuario.nombre} ${v.usuario.apellido}`,
-          email: v.usuario.email,
-          membresia: v.usuario.membresia ? 'Sí' : 'No',
+          nombre,
+          email,
+          membresia,
           totalGastado: 0,
           cantidadCompras: 0
         };
@@ -125,8 +152,8 @@ exports.getResumenVentas = async (req, res) => {
     // Ventas recientes (puedes limitar a las 20 más recientes)
     const ventasRecientes = ventasValidas.slice(0, 20).map(v => ({
       fecha: v.createdAt,
-      usuario: v.usuario ? `${v.usuario.nombre} ${v.usuario.apellido}` : 'N/A',
-      email: v.usuario ? v.usuario.email : 'N/A',
+      usuario: v.usuario ? `${v.usuario.nombre} ${v.usuario.apellido}` : `${v.nombreUsuario || ''} ${v.apellidoUsuario || ''}`.trim() || 'N/A',
+      email: v.usuario ? v.usuario.email : v.emailUsuario || 'N/A',
       pelicula: v.pelicula ? v.pelicula.titulo : 'N/A',
       sala: v.sala,
       horario: v.horario,
@@ -148,6 +175,6 @@ exports.getResumenVentas = async (req, res) => {
     });
   } catch (error) {
     console.error('Error en getResumenVentas:', error);
-    res.status(500).json({ error: 'Error al obtener resumen de ventas' });
+    res.status(500).json({ error: 'Error al obtener resumen de ventas', detalle: error.message, stack: error.stack });
   }
 };
