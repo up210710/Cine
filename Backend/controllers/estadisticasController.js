@@ -24,11 +24,12 @@ const obtenerEstadisticas = async (req, res) => {
       const key = v.pelicula.toString();
       boletosPorPelicula[key] = (boletosPorPelicula[key] || 0) + 1;
     });
-    // Total de boletos vendidos por sala
+    // Total de boletos vendidos por sala (soporta cantidadBoletos si existe, si no suma 1 por venta)
     const boletosPorSala = {};
     ventas.forEach(v => {
       const key = v.sala.toString();
-      boletosPorSala[key] = (boletosPorSala[key] || 0) + 1;
+      const cantidad = v.cantidadBoletos ? v.cantidadBoletos : 1;
+      boletosPorSala[key] = (boletosPorSala[key] || 0) + cantidad;
     });
     // Película más vendida y menos vendida
     let masVendida = null, menosVendida = null;
