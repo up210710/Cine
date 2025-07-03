@@ -17,11 +17,11 @@ export async function Home() {
         Compra tus boletos en línea y vive la experiencia del cine.
       </p>
     </section>
-    <section class="carrusel-estrenos-horizontal">
-      <button class="carrusel-btn" onclick="cambiarEstreno(-1)">&#8592;</button>
-      <div id="estrenosLista" class="estrenos-lista">${CarruselEstrenos({ estrenos, onComprar: window.comprarEstreno })}</div>
-      <button class="carrusel-btn" onclick="cambiarEstreno(1)">&#8594;</button>
-    </section>
+    <div style="display:flex;justify-content:center;align-items:center;width:100%;margin:0 auto 32px auto;">
+      <div id="estrenosLista" class="estrenos-lista" style="width:100%;max-width:950px;">
+        ${CarruselEstrenos({ estrenos, onComprar: window.comprarEstreno })}
+      </div>
+    </div>
     <section style="max-width:1100px; margin:40px auto 0 auto;">
       <h2 style="color:#ff9800; text-align:left; font-size:2rem; font-weight:bold; margin-bottom:18px;">
         Cartelera
